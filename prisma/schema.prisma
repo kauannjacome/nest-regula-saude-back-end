@@ -1,0 +1,1900 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model User {
+  id                                                    String                    @id @default(cuid())
+  uuid                                                  String                    @unique @default(uuid()) @db.Uuid
+  cpf                                                   String?                   @unique
+  name                                                  String?
+  nameNormalized                                        String?                   @map("name_normalized")
+  email                                                 String?                   @unique
+  emailVerified                                         DateTime?                 @map("email_verified")
+  image                                                 String?
+  avatarUploadId                                        Int?                      @map("avatar_upload_id")
+  cargo                                                 String?
+  position                                              String?
+  sex                                                   Sex?
+  birthDate                                             DateTime?                 @map("birth_date")
+  phoneNumber                                           String?                   @map("phone_number")
+  cns                                                   String?
+  professionalRegistry                                  String?                   @map("professional_registry")
+  registryType                                          String?                   @map("registry_type")
+  registryNumber                                        String?                   @map("registry_number")
+  registryState                                         String?                   @map("registry_state")
+  passwordHash                                          String?                   @map("password_hash")
+  isPasswordTemp                                        Boolean                   @default(false) @map("is_password_temp")
+  numberTry                                             Int?                      @default(0) @map("number_try")
+  numberTry2FA                                          Int?                      @default(0) @map("number_try_2fa")
+  isBlocked                                             Boolean                   @default(false) @map("is_blocked")
+  acceptedTerms                                         Boolean                   @default(false) @map("accepted_terms")
+  acceptedTermsAt                                       DateTime?                 @map("accepted_terms_at")
+  acceptedTermsVersion                                  String?                   @map("accepted_terms_version")
+  resetToken                                            String?                   @map("reset_token")
+  resetTokenExpiry                                      DateTime?                 @map("reset_token_expiry")
+  address                                               String?
+  city                                                  String?
+  complement                                            String?
+  deathDate                                             DateTime?                 @map("death_date")
+  fatherName                                            String?                   @map("father_name")
+  gender                                                String?
+  isDisabled                                            Boolean                   @default(false) @map("is_disabled")
+  maritalStatus                                         String?                   @map("marital_status")
+  motherName                                            String?                   @map("mother_name")
+  nationality                                           String?
+  naturalness                                           String?
+  placeOfBirth                                          String?                   @map("place_of_birth")
+  neighborhood                                          String?
+  number                                                String?
+  postalCode                                            String?                   @map("postal_code")
+  race                                                  String?
+  socialName                                            String?                   @map("social_name")
+  state                                                 String?
+  numberUnlock                                          Int?                      @default(0) @map("number_unlock")
+  isSystemManager                                       Boolean?                  @default(false) @map("is_system_manager")
+  createdAt                                             DateTime                  @default(now()) @map("created_at")
+  updatedAt                                             DateTime                  @updatedAt @map("updated_at")
+  deletedAt                                             DateTime?                 @map("deleted_at")
+  rg                                                    String?                   @unique
+  twoFactorEnabled                                      Boolean                   @default(false) @map("two_factor_enabled")
+  twoFactorResetRequired                                Boolean                   @default(false) @map("two_factor_reset_required")
+  twoFactorSecret                                       String?                   @map("two_factor_secret")
+  twoFactorVerifiedAt                                   DateTime?                 @map("two_factor_verified_at")
+  accounts                                              Account[]
+  auditLogs                                             AuditLog[]
+  backupsCreated                                        BackupHistory[]           @relation("BackupCreator")
+  batchActions                                          BatchAction[]
+  cares                                                 Care[]
+  citizenDocumentsUploaded                              CitizenDocument[]         @relation("UserCitizenDocuments")
+  documentAccessLogs                                    DocumentAccessLog[]       @relation("UserDocumentAccessLogs")
+  templatesCreated                                      DocumentTemplate[]
+  documentUploadTokens                                  DocumentUploadToken[]     @relation("DocumentUploadTokenCreator")
+  foldersResponsible                                    Folder[]                  @relation("UserResponsible")
+  generatedDocuments                                    GeneratedDocument[]
+  notifications                                         Notification[]
+  regulationsAnalyzed                                   Regulation[]              @relation("regulation_analyzer")
+  regulationsCreated                                    Regulation[]              @relation("regulation_creator")
+  regulationsPrinted                                    Regulation[]              @relation("regulation_printer")
+  regulationUsers                                       RegulationUser[]
+  schedulesAsProfessional                               Schedule[]                @relation("ScheduleProfessional")
+  sessions                                              Session[]
+  supportTicketMessages                                 SupportTicketMessage[]
+  supportTicketsAssigned                                SupportTicket[]            @relation("SupportTicketAssignedTo")
+  resolvedTickets                                       SupportTicket[]           @relation("SupportTicketResolver")
+  supportTickets                                        SupportTicket[]           @relation("SupportTicketUser")
+  uploadsCreated                                        Upload[]                  @relation("UploadCreator")
+  uploadAccessLogs                                      UploadAccessLog[]
+  userDocumentsUploaded                                 UserDocument[]            @relation("UserDocumentUploader")
+  userDocuments                                         UserDocument[]            @relation("UserDocuments")
+  employments                                           UserEmployment[]
+  employmentsInvited                                    UserEmployment[]          @relation("EmploymentInviter")
+  employmentsRequested                                  UserEmployment[]          @relation("EmploymentRequester")
+  userOnboarding                                        UserOnboarding?
+  generatedReports                                      GeneratedReport[]
+  avatarUpload                                          Upload?                   @relation("UserAvatar", fields: [avatarUploadId], references: [id])
+
+  @@index([email])
+  @@index([cpf])
+  @@index([avatarUploadId])
+  @@map("users")
+}
+
+model Subscriber {
+  id                               Int                                @id @default(autoincrement())
+  uuid                             String                             @unique @default(uuid()) @db.Uuid
+  name                             String
+  municipalityName                 String                             @map("municipality_name")
+  email                            String
+  telephone                        String
+  cnpj                             String                             @unique
+  postalCode                       String                             @map("postal_code")
+  city                             String
+  neighborhood                     String
+  street                           String
+  number                           String
+  stateName                        String                             @map("state_name")
+  stateAcronym                     String                             @map("state_acronym")
+  logoStateUploadId                Int?                               @map("logo_state_upload_id")
+  logoMunicipalUploadId            Int?                               @map("logo_municipal_upload_id")
+  logoAdministrationUploadId       Int?                               @map("logo_administration_upload_id")
+  subscriptionStatus               SubscriptionStatus                 @default(ACTIVE) @map("subscription_status")
+  createdAt                        DateTime                           @default(now()) @map("created_at")
+  updatedAt                        DateTime                           @updatedAt @map("updated_at")
+  deletedAt                        DateTime?                          @map("deleted_at")
+  auditLogs                        AuditLog[]
+  batchActions                     BatchAction[]
+  cares                            Care[]
+  careRegulations                  CareRegulation[]
+  citizens                         Citizen[]
+  citizenDocument                  CitizenDocument[]
+  documentTemplates                DocumentTemplate[]
+  documentUploadTokens             DocumentUploadToken[]
+  folders                          Folder[]
+  generatedDocuments               GeneratedDocument[]
+  groups                           Group[]
+  notifications                    Notification[]
+  notificationRules                NotificationRule[]
+  onboardingImportLogs             OnboardingImportLog[]
+  permissions                      Permission[]
+  regulations                      Regulation[]
+  schedules                        Schedule[]
+  logoAdministrationLogo           Upload?                            @relation("SubscriberAdministrationLogo", fields: [logoAdministrationUploadId], references: [id])
+  logoMunicipalLogo                Upload?                            @relation("SubscriberMunicipalLogo", fields: [logoMunicipalUploadId], references: [id])
+  logoStateLogo                    Upload?                            @relation("SubscriberStateLogo", fields: [logoStateUploadId], references: [id])
+  subscriptionPayments             SubscriptionPayment[]
+  suppliers                        Supplier[]
+  supportTickets                   SupportTicket[]
+  tenantRoles                      TenantRole[]
+  units                            Unit[]
+  uploads                          Upload[]                           @relation("SubscriberUploads")
+  userDocuments                    UserDocument[]
+  userEmployments                  UserEmployment[]
+  whatsappConfig                       WhatsAppConfig?
+  whatsAppNotificationPreferences      WhatsAppNotificationPreference[]
+  whatsappProgrammeds                  WhatsAppProgrammed[]
+  notificationConfigs              NotificationConfig[]
+  protocolCounter                  ProtocolCounter?
+  generatedReports                 GeneratedReport[]
+  whatsappMessageQueue             WhatsAppMessageQueue[]
+
+  @@index([logoStateUploadId])
+  @@index([logoMunicipalUploadId])
+  @@index([logoAdministrationUploadId])
+  @@map("subscriber")
+}
+
+model SubscriptionPayment {
+  id             Int           @id @default(autoincrement())
+  uuid           String        @unique @default(uuid()) @db.Uuid
+  subscriberId   Int           @map("subscriber_id")
+  referenceMonth DateTime      @map("reference_month") @db.Date
+  dueDate        DateTime      @map("due_date") @db.Date
+  amount         Decimal       @db.Decimal(10, 2)
+  paidAt         DateTime?     @map("paid_at")
+  paidAmount     Decimal?      @map("paid_amount") @db.Decimal(10, 2)
+  status         PaymentStatus @default(PENDING)
+  notes          String?
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  subscriber     Subscriber    @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, referenceMonth])
+  @@index([subscriberId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("subscription_payment")
+}
+
+model SupportTicket {
+  id              Int                      @id @default(autoincrement())
+  uuid            String                   @unique @default(uuid()) @db.Uuid
+  subscriberId    Int?                     @map("subscriber_id")
+  userId          String?                  @map("user_id")
+  ticketNumber    String                   @unique @map("ticket_number")
+  channel         TicketChannel            @default(WEB)
+  category        TicketCategory
+  subcategory     String?
+  subject         String
+  description     String
+  status          TicketStatus             @default(OPEN)
+  priority        TicketPriority           @default(NORMAL)
+  errorContext    Json?                    @map("error_context")
+  contactEmail    String?                  @map("contact_email")
+  contactName     String?                  @map("contact_name")
+  contactPhone    String?                  @map("contact_phone")
+  assignedToId    String?                  @map("assigned_to_id")
+  assignedAt      DateTime?                @map("assigned_at")
+  resolution      String?
+  resolvedAt      DateTime?                @map("resolved_at")
+  resolvedById    String?                  @map("resolved_by_id")
+  firstResponseAt DateTime?                @map("first_response_at")
+  createdAt       DateTime                 @default(now()) @map("created_at")
+  updatedAt       DateTime                 @updatedAt @map("updated_at")
+  closedAt        DateTime?                @map("closed_at")
+  messages        SupportTicketMessage[]
+  assignedTo      User?                    @relation("SupportTicketAssignedTo", fields: [assignedToId], references: [id])
+  resolvedBy      User?                    @relation("SupportTicketResolver", fields: [resolvedById], references: [id])
+  subscriber      Subscriber?              @relation(fields: [subscriberId], references: [id])
+  user            User?                    @relation("SupportTicketUser", fields: [userId], references: [id])
+
+  @@index([subscriberId])
+  @@index([userId])
+  @@index([status])
+  @@index([assignedToId])
+  @@index([category])
+  @@index([createdAt])
+  @@index([priority])
+  @@index([ticketNumber])
+  @@map("support_tickets")
+}
+
+model Unit {
+  id              Int              @id @default(autoincrement())
+  uuid            String           @unique @default(uuid()) @db.Uuid
+  subscriberId    Int              @map("subscriber_id")
+  name            String
+  nameNormalized  String?          @map("name_normalized")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  deletedAt       DateTime?        @map("deleted_at")
+  address         String?
+  city            String?
+  cnes            String?
+  complement      String?
+  email           String?
+  neighborhood    String?
+  number          String?
+  phone           String?
+  postalCode      String?          @map("postal_code")
+  state           String?
+  type            String?
+  mondayOpen      String?          @map("monday_open")
+  mondayClose     String?          @map("monday_close")
+  tuesdayOpen     String?          @map("tuesday_open")
+  tuesdayClose    String?          @map("tuesday_close")
+  wednesdayOpen   String?          @map("wednesday_open")
+  wednesdayClose  String?          @map("wednesday_close")
+  thursdayOpen    String?          @map("thursday_open")
+  thursdayClose   String?          @map("thursday_close")
+  fridayOpen      String?          @map("friday_open")
+  fridayClose     String?          @map("friday_close")
+  saturdayOpen    String?          @map("saturday_open")
+  saturdayClose   String?          @map("saturday_close")
+  sundayOpen      String?          @map("sunday_open")
+  sundayClose     String?          @map("sunday_close")
+  operatingNotes  String?          @map("operating_notes")
+  regulations     Regulation[]
+  subscriber      Subscriber       @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  userEmployments UserEmployment[]
+
+  @@index([subscriberId])
+  @@map("unit")
+}
+
+model AuditLog {
+  id           Int         @id @default(autoincrement())
+  uuid         String      @unique @default(uuid()) @db.Uuid
+  subscriberId Int         @map("subscriber_id")
+  actorId      String?     @map("actor_id")
+  objectType   String      @map("object_type")
+  objectId     Int         @map("object_id")
+  action       AuditAction
+  detail       Json
+  occurredAt   DateTime    @default(now()) @map("occurred_at")
+  actor        User?       @relation(fields: [actorId], references: [id])
+  subscriber   Subscriber  @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([subscriberId])
+  @@index([actorId])
+  @@index([objectType, objectId])
+  @@map("audit_log")
+}
+
+model Care {
+  id              Int               @id @default(autoincrement())
+  uuid            String            @unique @default(uuid()) @db.Uuid
+  subscriberId    Int               @map("subscriber_id")
+  name            String
+  nameNormalized  String?           @map("name_normalized")
+  acronym         String?
+  description     String?
+  value           Float?
+  status          CareStatus?       @default(ACTIVE)
+  resourceOrigin  ResourceOrigin?   @default(NOT_SPECIFIED) @map("resource_origin")
+  templateId      Int?              @map("template_id")
+  priority        Priority?         @default(ELECTIVE)
+  unitMeasure     UnitMeasure?      @map("unit_measure")
+  minDeadlineDays Int?              @map("min_deadline_days")
+  groupId         Int?              @map("group_id")
+  userId          String?           @map("user_id")
+  supplierId      Int?              @map("supplier_id")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  deletedAt       DateTime?         @map("deleted_at")
+  amount          Int?
+  protocol        String?
+  type            String?
+  sigtapCode      String?           @map("sigtap_code")
+  complexity      String?
+  gender          String?
+  minAge          Int?              @map("min_age")
+  maxAge          Int?              @map("max_age")
+  stayTime        Int?              @map("stay_time")
+  subGroupId      Int?              @map("sub_group_id")
+  typeDeclaration TypeDeclaration?  @map("type_declaration")
+  group           Group?            @relation(fields: [groupId], references: [id])
+  subGroup        SubGroup?         @relation(fields: [subGroupId], references: [id])
+  subscriber      Subscriber        @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  supplier        Supplier?         @relation(fields: [supplierId], references: [id])
+  template        DocumentTemplate? @relation(fields: [templateId], references: [id])
+  user            User?             @relation(fields: [userId], references: [id])
+  regulations     CareRegulation[]
+
+  @@index([subscriberId])
+  @@index([groupId])
+  @@index([userId])
+  @@index([templateId])
+  @@index([sigtapCode])
+  @@index([subGroupId])
+  @@index([subscriberId, status, deletedAt])
+  @@map("care")
+}
+
+model Folder {
+  id             Int          @id @default(autoincrement())
+  uuid           String       @unique @default(uuid()) @db.Uuid
+  subscriberId   Int          @map("subscriber_id")
+  name           String
+  nameNormalized String?      @map("name_normalized")
+  idCode         String?      @map("id_code")
+  description    String?
+  responsibleId  String?      @map("responsible_id")
+  startDate      DateTime?    @map("start_date")
+  endDate        DateTime?    @map("end_date")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  deletedAt      DateTime?    @map("deleted_at")
+  color          String?      @default("#3B82F6")
+  responsible    User?        @relation("UserResponsible", fields: [responsibleId], references: [id])
+  subscriber     Subscriber   @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  regulations    Regulation[]
+
+  @@index([subscriberId])
+  @@map("folder")
+}
+
+model Group {
+  id             Int         @id @default(autoincrement())
+  uuid           String      @unique @default(uuid()) @db.Uuid
+  subscriberId   Int?        @map("subscriber_id")
+  code           String?     @unique
+  name           String
+  nameNormalized String?     @map("name_normalized")
+  description    String?
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+  deletedAt      DateTime?   @map("deleted_at")
+  cares          Care[]
+  subscriber     Subscriber? @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  subGroups      SubGroup[]
+
+  @@index([id])
+  @@index([subscriberId])
+  @@index([code])
+  @@index([name])
+  @@map("group")
+}
+
+model Citizen {
+  id                   Int               @id @default(autoincrement())
+  uuid                 String            @unique @default(uuid()) @db.Uuid
+  subscriberId         Int               @map("subscriber_id")
+  cpf                  String?
+  cns                  String?
+  name                 String
+  nameNormalized       String?           @map("name_normalized")
+  socialName           String?           @map("social_name")
+  avatarUploadId       Int?              @map("avatar_upload_id")
+  gender               String?
+  race                 String?
+  sex                  String?
+  birthDate            DateTime          @map("birth_date")
+  deathDate            DateTime?         @map("death_date")
+  motherName           String?           @map("mother_name")
+  fatherName           String?           @map("father_name")
+  phone                String?
+  email                String?
+  postalCode           String?           @map("postal_code")
+  state                String?
+  city                 String?
+  address              String?
+  number               String?
+  complement           String?
+  neighborhood         String?
+  nationality          String?
+  naturalness          String?
+  placeOfBirth         String?           @map("place_of_birth")
+  maritalStatus        String?           @map("marital_status")
+  bloodType            String?           @map("blood_type")
+  passwordHash         String?           @map("password_hash")
+  isPasswordTemp       Boolean           @default(false) @map("is_password_temp")
+  numberTry            Int?              @default(0) @map("number_try")
+  isBlocked            Boolean           @default(false) @map("is_blocked")
+  acceptedTerms        Boolean           @default(false) @map("accepted_terms")
+  acceptedTermsAt      DateTime?         @map("accepted_terms_at")
+  acceptedTermsVersion String?           @map("accepted_terms_version")
+  createdAt            DateTime          @default(now()) @map("created_at")
+  updatedAt            DateTime          @updatedAt @map("updated_at")
+  deletedAt            DateTime?         @map("deleted_at")
+  numberUnlock         Int?              @default(0) @map("number_unlock")
+  rg                   String?
+  rgIssueDate          DateTime?         @map("rg_issue_date")
+  rgIssuer             String?           @map("rg_issuer")
+  rgState              String?           @map("rg_state")
+  avatarUpload         Upload?           @relation("CitizenAvatar", fields: [avatarUploadId], references: [id])
+  subscriber           Subscriber        @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  citizenDocument      CitizenDocument[]
+  regulations          Regulation[]      @relation("CitizenRegulation")
+  responsibleFor       Regulation[]      @relation("ResponsibleRegulation")
+  uploads              Upload[]          @relation("CitizenUploads")
+
+  @@unique([subscriberId, cpf])
+  @@index([subscriberId])
+  @@index([avatarUploadId])
+  @@map("citizen")
+}
+
+model UserEmployment {
+  id            Int              @id @default(autoincrement())
+  uuid          String           @unique @default(uuid()) @db.Uuid
+  userId        String           @map("user_id")
+  subscriberId  Int              @map("subscriber_id")
+  roleId        String?          @map("role_id")
+  unitId        Int?             @map("unit_id")
+  status        EmploymentStatus @default(PENDING)
+  isActive      Boolean          @default(false) @map("is_active")
+  isPrimary     Boolean          @default(false) @map("is_primary")
+  startDate     DateTime?        @map("start_date")
+  endDate       DateTime?        @map("end_date")
+  invitedById   String?          @map("invited_by_id")
+  invitedAt     DateTime?        @map("invited_at")
+  requestedById String?          @map("requested_by_id")
+  respondedAt   DateTime?        @map("responded_at")
+  inviteToken   String?          @unique @map("invite_token")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+  tenantRole    TenantRole?      @relation(fields: [roleId], references: [id])
+  subscriber    Subscriber       @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  unit          Unit?            @relation(fields: [unitId], references: [id])
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invitedBy     User?            @relation("EmploymentInviter", fields: [invitedById], references: [id])
+  requestedBy   User?            @relation("EmploymentRequester", fields: [requestedById], references: [id])
+  notifications Notification[]
+
+  @@unique([userId, subscriberId])
+  @@index([userId])
+  @@index([subscriberId])
+  @@index([roleId])
+  @@index([status])
+  @@index([isActive])
+  @@index([unitId])
+  @@index([invitedById])
+  @@index([requestedById])
+  @@map("user_employment")
+}
+
+model Regulation {
+  id                     Int                 @id @default(autoincrement())
+  uuid                   String              @unique @default(uuid()) @db.Uuid
+  subscriberId           Int                 @map("subscriber_id")
+  idCode                 String?             @map("id_code")
+  protocolNumber         String?             @map("protocol_number")
+  documentType           String?             @map("document_type")
+  citizenId              Int?                @map("citizen_id")
+  responsibleId          Int?                @map("responsible_id")
+  requestDate            DateTime?           @map("request_date")
+  status                 Status?
+  notes                  String?
+  denialReason           String?             @map("denial_reason")
+  returnReason           String?             @map("return_reason")
+  cancellationReason     String?             @map("cancellation_reason")
+  clinicalIndication     String?             @map("clinical_indication")
+  cid                    String?
+  folderId               Int?                @map("folder_id")
+  relationship           Relationship?
+  priority               Priority?           @default(ELECTIVE)
+  resourceOrigin         ResourceOrigin?     @default(NOT_SPECIFIED) @map("resource_origin")
+  templateId             Int?                @map("template_id")
+  requestingProfessional String?             @map("requesting_professional")
+  creatorId              String?             @map("creator_id")
+  analyzedId             String?             @map("analyzed_id")
+  printerId              String?             @map("printer_id")
+  supplierId             Int?                @map("supplier_id")
+  history                Int?                @default(1)
+  versionDocument        Int?                @default(1) @map("version_document")
+  createdAt              DateTime            @default(now()) @map("created_at")
+  updatedAt              DateTime            @updatedAt @map("updated_at")
+  deletedAt              DateTime?           @map("deleted_at")
+  unit_id                Int?
+  cares                  CareRegulation[]
+  generatedDocuments     GeneratedDocument[]
+  notifications          Notification[]
+  analyzer               User?               @relation("regulation_analyzer", fields: [analyzedId], references: [id])
+  citizen                Citizen?            @relation("CitizenRegulation", fields: [citizenId], references: [id])
+  creator                User?               @relation("regulation_creator", fields: [creatorId], references: [id])
+  folder                 Folder?             @relation(fields: [folderId], references: [id])
+  printer                User?               @relation("regulation_printer", fields: [printerId], references: [id])
+  responsible            Citizen?            @relation("ResponsibleRegulation", fields: [responsibleId], references: [id])
+  subscriber             Subscriber          @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  supplier               Supplier?           @relation(fields: [supplierId], references: [id])
+  template               DocumentTemplate?   @relation(fields: [templateId], references: [id])
+  unit                   Unit?               @relation(fields: [unit_id], references: [id])
+  userRegistries         RegulationUser[]
+  schedules              Schedule[]
+  uploads                Upload[]            @relation("RegulationUploads")
+  batchActions           BatchAction[]       @relation("BatchRegulations")
+
+  @@index([subscriberId])
+  @@index([citizenId])
+  @@index([folderId])
+  @@index([supplierId])
+  @@index([templateId])
+  @@index([subscriberId, status])
+  @@index([subscriberId, createdAt])
+  @@index([subscriberId, status, deletedAt])
+  @@index([subscriberId, requestDate(sort: Desc)])
+  @@index([citizenId, status])
+  @@index([unit_id])
+  @@map("regulation")
+}
+
+model RegulationUser {
+  id           Int                   @id @default(autoincrement())
+  uuid         String                @unique @default(uuid()) @db.Uuid
+  regulationId Int                   @map("regulation_id")
+  userId       String?               @map("user_id")
+  action       UserRegulationAction? @map("action")
+  details      Json?                 @map("details")
+  createdAt    DateTime              @default(now()) @map("created_at")
+  updatedAt    DateTime              @updatedAt @map("updated_at")
+  deletedAt    DateTime?             @map("deleted_at")
+  regulation   Regulation            @relation(fields: [regulationId], references: [id], onDelete: Cascade)
+  user         User?                 @relation(fields: [userId], references: [id])
+
+  @@index([regulationId])
+  @@index([userId])
+  @@index([action])
+  @@index([regulationId, action])
+  @@map("regulation_user")
+}
+
+model Supplier {
+  id                Int          @id @default(autoincrement())
+  uuid              String       @unique @default(uuid()) @db.Uuid
+  subscriberId      Int          @map("subscriber_id")
+  name              String
+  nameNormalized    String?      @map("name_normalized")
+  tradeName         String       @map("trade_name")
+  cnpj              String
+  postalCode        String?      @map("postal_code")
+  city              String?
+  state             String?
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+  deletedAt         DateTime?    @map("deleted_at")
+  address           String?
+  complement        String?
+  email             String?
+  stateRegistration String?      @map("inscricao_estadual")
+  neighborhood      String?
+  number            String?
+  phone             String?
+  website           String?
+  cares             Care[]
+  regulations       Regulation[]
+  subscriber        Subscriber   @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, cnpj])
+  @@index([subscriberId])
+  @@map("supplier")
+}
+
+model CareRegulation {
+  id           Int        @id @default(autoincrement())
+  subscriberId Int        @map("subscriber_id")
+  careId       Int        @map("care_id")
+  regulationId Int        @map("regulation_id")
+  quantity     Int        @default(1)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  care         Care       @relation(fields: [careId], references: [id], onDelete: Cascade)
+  regulation   Regulation @relation(fields: [regulationId], references: [id], onDelete: Cascade)
+  subscriber   Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@unique([careId, regulationId])
+  @@index([careId])
+  @@index([regulationId])
+  @@index([subscriberId])
+  @@map("care_regulation")
+}
+
+model TermsOfUse {
+  id        Int       @id @default(autoincrement())
+  uuid      String    @unique @default(uuid()) @db.Uuid
+  version   String    @unique
+  title     String
+  content   String
+  isActive  Boolean   @default(false) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@index([isActive])
+  @@index([version])
+  @@map("terms_of_use")
+}
+
+model Notification {
+  id            Int               @id @default(autoincrement())
+  uuid          String            @unique @default(uuid()) @db.Uuid
+  subscriberId  Int               @map("subscriber_id")
+  regulationId  Int?              @map("regulation_id")
+  employmentId  Int?              @map("employment_id")
+  title         String
+  message       String
+  type          NotificationType
+  metadata      Json?
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+  readAt        DateTime?         @map("read_at")
+  deletedAt     DateTime?         @map("deleted_at")
+  userId        String            @map("user_id")
+  daysCount     Int?              @map("days_count")
+  citizenName   String?           @map("citizen_name")
+  priority      Priority?
+  scheduledDate DateTime?         @map("scheduled_date")
+  regulation    Regulation?       @relation(fields: [regulationId], references: [id])
+  employment    UserEmployment?   @relation(fields: [employmentId], references: [id])
+  subscriber    Subscriber        @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([subscriberId])
+  @@index([userId])
+  @@index([regulationId])
+  @@index([employmentId])
+  @@index([createdAt])
+  @@index([subscriberId, createdAt])
+  @@map("notification")
+}
+
+model WhatsAppConfig {
+  id              Int        @id @default(autoincrement())
+  uuid            String     @unique @default(uuid()) @db.Uuid
+  subscriberId    Int        @unique @map("subscriber_id")
+  instanceName    String?    @map("instance_name")
+  apiKey          String?    @map("api_key")
+  provider        String     @default("evolution")
+  credentials     Json?
+  isActive        Boolean    @default(true) @map("is_active")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+  apiUrl          String?    @map("api_url")
+  webhookSecret   String?    @map("webhook_secret")
+  instanceId      String?    @map("instance_id")
+  instanceStatus  String?    @map("instance_status")
+  lastConnectedAt DateTime?  @map("last_connected_at")
+  subscriber      Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([subscriberId])
+  @@map("whatsapp_config")
+}
+
+model CitizenDocument {
+  id           Int                 @id @default(autoincrement())
+  uuid         String              @unique @default(uuid()) @db.Uuid
+  subscriberId Int                 @map("subscriber_id")
+  citizenId    Int                 @map("citizen_id")
+  documentType CitizenDocumentType @map("document_type")
+  category     DocumentCategory
+  fileName     String              @map("file_name")
+  url          String
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+  deletedAt    DateTime?           @map("deleted_at")
+  expiryDays   Int?                @map("expiry_days")
+  fileSize     Int?                @map("file_size")
+  mimeType     String?             @map("mime_type")
+  originalName String?             @map("original_name")
+  s3Bucket     String?             @map("s3_bucket")
+  s3Key        String?             @map("s3_key")
+  s3Region     String?             @map("s3_region")
+  uploadedById String?             @map("uploaded_by_id")
+  citizen      Citizen             @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  subscriber   Subscriber          @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  uploadedBy   User?               @relation("UserCitizenDocuments", fields: [uploadedById], references: [id])
+  accessLogs   DocumentAccessLog[]
+
+  @@index([category])
+  @@index([documentType])
+  @@index([citizenId])
+  @@index([subscriberId])
+  @@index([subscriberId, citizenId])
+  @@index([uploadedById])
+  @@map("citizen_document")
+}
+
+model DocumentAccessLog {
+  id            Int             @id @default(autoincrement())
+  uuid          String          @unique @default(uuid()) @db.Uuid
+  documentId    Int             @map("document_id")
+  userId        String          @map("user_id")
+  action        String
+  justification String
+  ipAddress     String?         @map("ip_address")
+  userAgent     String?         @map("user_agent")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  document      CitizenDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user          User            @relation("UserDocumentAccessLogs", fields: [userId], references: [id])
+
+  @@index([documentId])
+  @@index([userId])
+  @@index([documentId, createdAt])
+  @@map("document_access_log")
+}
+
+model DocumentTemplate {
+  id                 Int                 @id @default(autoincrement())
+  uuid               String              @unique @default(uuid()) @db.Uuid
+  subscriberId       Int                 @map("subscriber_id")
+  name               String
+  nameNormalized     String?             @map("name_normalized")
+  description        String?
+  category           String?
+  version            Int                 @default(1)
+  status             TemplateStatus      @default(DRAFT)
+  usageCount         Int                 @default(0) @map("usage_count")
+  lastUsedAt         DateTime?           @map("last_used_at")
+  createdBy          String?             @map("created_by")
+  isGlobal           Boolean             @default(false) @map("is_global")
+  parentTemplateId   Int?                @map("parent_template_id")
+  thumbnailId        Int?                @map("thumbnail_id")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  deletedAt          DateTime?           @map("deleted_at")
+  content            String?
+  dbModels           Json?               @map("db_models")
+  markers            Json?
+  pageConfig         Json?               @map("page_config")
+  quickTexts         Json?               @map("quick_texts")
+  cares              Care[]
+  creator            User?               @relation(fields: [createdBy], references: [id])
+  parentTemplate     DocumentTemplate?   @relation("TemplateParent", fields: [parentTemplateId], references: [id])
+  childTemplates     DocumentTemplate[]  @relation("TemplateParent")
+  subscriber         Subscriber          @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  thumbnail          Upload?             @relation("TemplateThumbnail", fields: [thumbnailId], references: [id])
+  generatedDocuments GeneratedDocument[]
+  regulations        Regulation[]
+  uploads            Upload[]            @relation("TemplateUploads")
+
+  @@index([subscriberId])
+  @@index([createdBy])
+  @@index([subscriberId, status])
+  @@index([subscriberId, category])
+  @@index([version])
+  @@map("document_template")
+}
+
+model Upload {
+  id                            Int                  @id @default(autoincrement())
+  uuid                          String               @unique @default(uuid()) @db.Uuid
+  fileName                      String               @map("file_name")
+  fileUrl                       String               @map("file_url")
+  fileType                      String?              @map("file_type")
+  fileSize                      Int?                 @map("file_size")
+  tag                           String?
+  uploaderId                    String?              @map("uploader_id")
+  subscriberId                  Int?                 @map("subscriber_id")
+  templateId                    Int?                 @map("template_id")
+  regulationId                  Int?                 @map("regulation_id")
+  citizenId                     Int?                 @map("citizen_id")
+  userId                        String?              @map("user_id")
+  documentType                  CitizenDocumentType? @map("document_type")
+  category                      DocumentCategory?
+  securityLevel                 UploadSecurityLevel  @default(INTERNAL) @map("security_level")
+  requiresPasswordConfirmation  Boolean              @default(false) @map("requires_password_confirmation")
+  entityType                    UploadEntityType?    @map("entity_type")
+  entityId                      String?              @map("entity_id")
+  description                   String?
+  expiryDate                    DateTime?            @map("expiry_date")
+  expiryDays                    Int?                 @map("expiry_days")
+  isArchived                    Boolean              @default(false) @map("is_archived")
+  s3Key                         String?              @map("s3_key")
+  s3Bucket                      String?              @map("s3_bucket")
+  s3Region                      String?              @map("s3_region")
+  originalName                  String?              @map("original_name")
+  mimeType                      String?              @map("mime_type")
+  createdAt                     DateTime             @default(now()) @map("created_at")
+  updatedAt                     DateTime             @updatedAt @map("updated_at")
+  deletedAt                     DateTime?            @map("deleted_at")
+  citizenAvatars                Citizen[]           @relation("CitizenAvatar")
+  thumbnailTemplates            DocumentTemplate[]  @relation("TemplateThumbnail")
+  thumbnailDocuments            GeneratedDocument[] @relation("DocumentThumbnail")
+  subscriberAdministrationLogos Subscriber[]        @relation("SubscriberAdministrationLogo")
+  subscriberMunicipalLogos      Subscriber[]        @relation("SubscriberMunicipalLogo")
+  subscriberStateLogos          Subscriber[]        @relation("SubscriberStateLogo")
+  citizen                       Citizen?            @relation("CitizenUploads", fields: [citizenId], references: [id])
+  regulation                    Regulation?         @relation("RegulationUploads", fields: [regulationId], references: [id])
+  subscriber                    Subscriber?         @relation("SubscriberUploads", fields: [subscriberId], references: [id], onDelete: Cascade)
+  template                      DocumentTemplate?   @relation("TemplateUploads", fields: [templateId], references: [id], onDelete: Cascade)
+  uploader                      User?               @relation("UploadCreator", fields: [uploaderId], references: [id])
+  accessLogs                    UploadAccessLog[]
+  userAvatars                   User[]              @relation("UserAvatar")
+
+  @@index([uploaderId])
+  @@index([subscriberId])
+  @@index([templateId])
+  @@index([regulationId])
+  @@index([citizenId])
+  @@index([securityLevel])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([userId])
+  @@index([subscriberId, entityType])
+  @@index([deletedAt])
+  @@map("upload")
+}
+
+model GeneratedDocument {
+  id              Int              @id @default(autoincrement())
+  uuid            String           @unique @default(uuid()) @db.Uuid
+  subscriberId    Int              @map("subscriber_id")
+  templateId      Int              @map("template_id")
+  templateVersion Int              @map("template_version")
+  format          String
+  dataSnapshot    Json             @map("data_snapshot")
+  filePath        String?          @map("file_path")
+  fileUrl         String?          @map("file_url")
+  fileSize        Int?             @map("file_size")
+  generationTime  Int?             @map("generation_time")
+  generatedBy     String?          @map("generated_by")
+  status          String           @default("success")
+  errorMessage    String?          @map("error_message")
+  thumbnailId     Int?             @map("thumbnail_id")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  deletedAt       DateTime?        @map("deleted_at")
+  content         String?
+  markers         Json?
+  pageConfig      Json?            @map("page_config")
+  regulationId    Int?
+  generator       User?            @relation(fields: [generatedBy], references: [id])
+  regulation      Regulation?      @relation(fields: [regulationId], references: [id])
+  subscriber      Subscriber       @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  template        DocumentTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  thumbnail       Upload?          @relation("DocumentThumbnail", fields: [thumbnailId], references: [id])
+
+  @@index([subscriberId])
+  @@index([templateId])
+  @@index([generatedBy])
+  @@index([subscriberId, createdAt])
+  @@map("generated_document")
+}
+
+model WhatsAppProgrammed {
+  id                               Int                                @id @default(autoincrement())
+  uuid                             String                             @unique @default(uuid()) @db.Uuid
+  subscriberId                     Int                                @map("subscriber_id")
+  name                             String
+  nameNormalized                   String?                            @map("name_normalized")
+  triggerType                      WhatsAppTrigger                    @map("trigger_type")
+  triggerValue                     String?                            @map("trigger_value")
+  headerText                       String?                            @map("header_text")
+  bodyText                         String                             @map("body_text")
+  footerText                       String?                            @map("footer_text")
+  buttons                          Json?
+  delayMinutes                     Int                                @default(0) @map("delay_minutes")
+  isActive                         Boolean                            @default(true) @map("is_active")
+  createdAt                        DateTime                           @default(now()) @map("created_at")
+  updatedAt                        DateTime                           @updatedAt @map("updated_at")
+  deletedAt                        DateTime?                          @map("deleted_at")
+  notificationRules                NotificationRule[]
+  notificationConfigs                 NotificationConfig[]
+  whatsAppNotificationPreferences     WhatsAppNotificationPreference[]
+  subscriber                          Subscriber                         @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([subscriberId])
+  @@index([subscriberId, triggerType])
+  @@index([subscriberId, deletedAt])
+  @@map("whatsapp_programmed")
+}
+
+model Schedule {
+  id                 Int            @id @default(autoincrement())
+  uuid               String         @unique @default(uuid()) @db.Uuid
+  subscriberId       Int            @map("subscriber_id")
+  regulationId       Int            @map("regulation_id")
+  professionalId     String         @map("professional_id")
+  status             ScheduleStatus @default(SCHEDULED)
+  scheduledDate      DateTime       @map("scheduled_date")
+  scheduledEndDate   DateTime?      @map("scheduled_end_date")
+  notes              String?
+  cancellationReason String?        @map("cancellation_reason")
+  noShowReason       String?        @map("no_show_reason")
+  recurrenceType     RecurrenceType @default(NONE)
+  recurrenceInterval Int?           @map("recurrence_interval")
+  recurrenceEndDate  DateTime?      @map("recurrence_end_date")
+  parentScheduleId   Int?           @map("parent_schedule_id")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  deletedAt          DateTime?      @map("deleted_at")
+  parentSchedule     Schedule?      @relation("ScheduleRecurrence", fields: [parentScheduleId], references: [id])
+  childSchedules     Schedule[]     @relation("ScheduleRecurrence")
+  professional       User           @relation("ScheduleProfessional", fields: [professionalId], references: [id])
+  regulation         Regulation     @relation(fields: [regulationId], references: [id])
+  subscriber         Subscriber     @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  batchActions       BatchAction[]  @relation("BatchSchedules")
+
+  @@index([subscriberId])
+  @@index([regulationId])
+  @@index([subscriberId, scheduledDate])
+  @@index([parentScheduleId])
+  @@map("schedule")
+}
+
+model NotificationRule {
+  id                   Int                 @id @default(autoincrement())
+  uuid                 String              @unique @default(uuid()) @db.Uuid
+  subscriberId         Int                 @map("subscriber_id")
+  triggerEvent         String              @map("trigger_event")
+  isActive             Boolean             @default(true) @map("is_active")
+  whatsappProgrammedId Int?                @map("whatsapp_programmed_id")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+  subscriber           Subscriber          @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  whatsappTemplate     WhatsAppProgrammed? @relation(fields: [whatsappProgrammedId], references: [id])
+
+  @@index([subscriberId])
+  @@map("notification_rule")
+}
+
+model BatchAction {
+  id                  Int               @id @default(autoincrement())
+  uuid                String            @unique @default(uuid()) @db.Uuid
+  subscriberId        Int               @map("subscriber_id")
+  userId              String            @map("user_id")
+  qrcodeSmartActionId Int               @unique @map("qrcode_smart_action_id")
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt           DateTime          @updatedAt @map("updated_at")
+  type                String?
+  qrcodeSmartAction   QrcodeSmartAction @relation(fields: [qrcodeSmartActionId], references: [id], onDelete: Cascade)
+  subscriber          Subscriber        @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  regulations         Regulation[]      @relation("BatchRegulations")
+  schedules           Schedule[]        @relation("BatchSchedules")
+
+  @@index([subscriberId])
+  @@index([userId])
+  @@map("batch_actions")
+}
+
+model QrcodeSmartAction {
+  id             Int          @id @default(autoincrement())
+  uuid           String       @unique @default(uuid()) @db.Uuid
+  hash           String       @unique
+  expiresAt      DateTime     @map("expires_at")
+  allowedActions String[]     @map("allowed_actions")
+  accessCount    Int          @default(0) @map("access_count")
+  accessLimit    Int          @default(3) @map("access_limit")
+  targetData     Json         @map("targetData")
+  executionLogs  Json?        @map("executionLogs")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  deletedAt      DateTime?    @map("deleted_at")
+  batchAction    BatchAction?
+
+  @@index([hash])
+  @@map("qrcode_smart_actions")
+}
+
+model Permission {
+  id           String                 @id @default(cuid())
+  subscriberId Int                    @map("subscriber_id")
+  name         String
+  resource     String
+  action       String
+  description  String?
+  isSystem     Boolean                @default(true) @map("is_system")
+  createdAt    DateTime               @default(now()) @map("created_at")
+  updatedAt    DateTime               @updatedAt @map("updated_at")
+  subscriber   Subscriber             @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  roles        TenantRolePermission[]
+
+  @@unique([subscriberId, name])
+  @@index([subscriberId])
+  @@index([subscriberId, resource])
+  @@map("permissions")
+}
+
+model TenantRole {
+  id           String                 @id @default(cuid())
+  subscriberId Int                    @map("subscriber_id")
+  name         String
+  displayName  String                 @map("display_name")
+  description  String?
+  color        String?                @default("#3B82F6")
+  priority     Int                    @default(0)
+  homePage     String?                @default("/regulations") @map("home_page")
+  isSystem     Boolean                @default(true) @map("is_system")
+  createdAt    DateTime               @default(now()) @map("created_at")
+  updatedAt    DateTime               @updatedAt @map("updated_at")
+  deletedAt    DateTime?              @map("deleted_at")
+  permissions  TenantRolePermission[]
+  subscriber   Subscriber             @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  employments  UserEmployment[]
+
+  @@unique([subscriberId, name])
+  @@index([subscriberId])
+  @@index([subscriberId, isSystem])
+  @@map("tenant_roles")
+}
+
+model TenantRolePermission {
+  id           String     @id @default(cuid())
+  roleId       String     @map("role_id")
+  permissionId String     @map("permission_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         TenantRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@map("tenant_role_permissions")
+}
+
+model UploadAccessLog {
+  id                Int                @id @default(autoincrement())
+  uuid              String             @unique @default(uuid()) @db.Uuid
+  uploadId          Int                @map("upload_id")
+  userId            String             @map("user_id")
+  action            UploadAccessAction
+  passwordConfirmed Boolean            @default(false) @map("password_confirmed")
+  ipAddress         String?            @map("ip_address")
+  userAgent         String?            @map("user_agent")
+  justification     String?
+  createdAt         DateTime           @default(now()) @map("created_at")
+  upload            Upload             @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+  user              User               @relation(fields: [userId], references: [id])
+
+  @@index([uploadId])
+  @@index([userId])
+  @@index([uploadId, createdAt])
+  @@index([action])
+  @@map("upload_access_log")
+}
+
+model DocumentUploadToken {
+  id           Int        @id @default(autoincrement())
+  uuid         String     @unique @default(uuid()) @db.Uuid
+  hash         String     @unique
+  subscriberId Int        @map("subscriber_id")
+  createdById  String     @map("created_by_id")
+  entityType   String     @map("entity_type")
+  entityId     String     @map("entity_id")
+  documentType String     @map("document_type")
+  expiresAt    DateTime   @map("expires_at")
+  usedAt       DateTime?  @map("used_at")
+  uploadId     Int?       @map("upload_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  createdBy    User       @relation("DocumentUploadTokenCreator", fields: [createdById], references: [id])
+  subscriber   Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([hash])
+  @@index([subscriberId])
+  @@map("document_upload_tokens")
+}
+
+model UserDocument {
+  id           Int                 @id @default(autoincrement())
+  uuid         String              @unique @default(uuid()) @db.Uuid
+  subscriberId Int                 @map("subscriber_id")
+  userId       String              @map("user_id")
+  documentType CitizenDocumentType @map("document_type")
+  category     DocumentCategory
+  fileName     String              @map("file_name")
+  url          String
+  s3Key        String?             @map("s3_key")
+  s3Bucket     String?             @map("s3_bucket")
+  s3Region     String?             @map("s3_region")
+  fileSize     Int?                @map("file_size")
+  mimeType     String?             @map("mime_type")
+  originalName String?             @map("original_name")
+  expiryDays   Int?                @map("expiry_days")
+  uploadedById String?             @map("uploaded_by_id")
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+  deletedAt    DateTime?           @map("deleted_at")
+  subscriber   Subscriber          @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  uploadedBy   User?               @relation("UserDocumentUploader", fields: [uploadedById], references: [id])
+  user         User                @relation("UserDocuments", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([subscriberId])
+  @@index([subscriberId, userId])
+  @@map("user_documents")
+}
+
+model SystemConfig {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedBy String?  @map("updated_by")
+
+  @@map("system_config")
+}
+
+model BackupHistory {
+  id           Int          @id @default(autoincrement())
+  filename     String
+  s3Key        String       @map("s3_key")
+  size         Int          @default(0)
+  type         BackupType   @default(MANUAL)
+  status       BackupStatus @default(PENDING)
+  errorMessage String?      @map("error_message")
+  startedAt    DateTime     @default(now()) @map("started_at")
+  completedAt  DateTime?    @map("completed_at")
+  createdById  String?      @map("created_by_id")
+  createdBy    User?        @relation("BackupCreator", fields: [createdById], references: [id])
+
+  @@index([type])
+  @@index([status])
+  @@index([startedAt])
+  @@map("backup_history")
+}
+
+model OnboardingImportLog {
+  id           Int        @id @default(autoincrement())
+  uuid         String     @unique @default(uuid()) @db.Uuid
+  subscriberId Int        @map("subscriber_id")
+  userId       String     @map("user_id")
+  importType   String     @map("import_type")
+  fileName     String     @map("file_name")
+  totalRows    Int        @map("total_rows")
+  successRows  Int        @map("success_rows")
+  errorRows    Int        @map("error_rows")
+  errors       Json?
+  status       String     @default("PENDING")
+  completedAt  DateTime?  @map("completed_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  subscriber   Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([subscriberId, createdAt])
+  @@index([subscriberId])
+  @@index([userId])
+  @@map("onboarding_import_log")
+}
+
+model SupportTicketMessage {
+  id          Int           @id @default(autoincrement())
+  uuid        String        @unique @default(uuid()) @db.Uuid
+  ticketId    Int           @map("ticket_id")
+  userId      String?       @map("user_id")
+  message     String
+  isInternal  Boolean       @default(false) @map("is_internal")
+  isFromUser  Boolean       @default(true) @map("is_from_user")
+  attachments Json?
+  createdAt   DateTime      @default(now()) @map("created_at")
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user        User?         @relation(fields: [userId], references: [id])
+
+  @@index([ticketId, createdAt])
+  @@index([ticketId])
+  @@index([userId])
+  @@map("support_ticket_messages")
+}
+
+model UserOnboarding {
+  id                 Int       @id @default(autoincrement())
+  uuid               String    @unique @default(uuid()) @db.Uuid
+  userId             String    @unique @map("user_id")
+  isCompleted        Boolean   @default(false) @map("is_completed")
+  completedAt        DateTime? @map("completed_at")
+  currentStep        String    @default("WELCOME") @map("current_step")
+  welcomeCompletedAt DateTime? @map("welcome_completed_at")
+  profileCompletedAt DateTime? @map("profile_completed_at")
+  importCompletedAt  DateTime? @map("import_completed_at")
+  tourCompletedAt    DateTime? @map("tour_completed_at")
+  skipImport         Boolean   @default(false) @map("skip_import")
+  skipTour           Boolean   @default(false) @map("skip_tour")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_onboarding")
+}
+
+model WhatsAppNotificationPreference {
+  id                 Int                         @id @default(autoincrement())
+  uuid               String                      @unique @default(uuid()) @db.Uuid
+  subscriberId       Int                         @map("subscriber_id")
+  triggerType        WhatsAppTrigger             @map("trigger_type")
+  state              NotificationPreferenceState @default(ON)
+  templateId         Int?                        @map("template_id")
+  customMessage      String?                     @map("custom_message")
+  createdAt          DateTime                    @default(now()) @map("created_at")
+  updatedAt          DateTime                    @updatedAt @map("updated_at")
+  subscriber         Subscriber                  @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  whatsappProgrammed WhatsAppProgrammed?         @relation(fields: [templateId], references: [id])
+
+  @@unique([subscriberId, triggerType])
+  @@index([subscriberId])
+  @@map("whatsapp_notification_preference")
+}
+
+model WhatsAppSystemProvider {
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(uuid()) @db.Uuid
+  name         String
+  provider     String
+  apiUrl       String   @map("api_url")
+  apiKey       String   @map("api_key")
+  globalApiKey String?  @map("global_api_key")
+  webhookUrl   String?  @map("webhook_url")
+  isDefault    Boolean  @default(false) @map("is_default")
+  isActive     Boolean  @default(true) @map("is_active")
+  maxInstances Int?     @map("max_instances")
+  settings     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("whatsapp_system_provider")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  OVERDUE
+  TEMPORARY_UNBLOCK
+  BLOCKED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum NotificationType {
+  PRAZO
+  PRIORIDADE
+  QUANTIDADE_ATINGIDA
+  AGENDAMENTO
+  REGULATION_PENDING
+  SCHEDULE_REMINDER
+  // Vínculos/Convites
+  EMPLOYMENT_INVITED
+  EMPLOYMENT_REQUESTED
+  EMPLOYMENT_ACCEPTED
+  EMPLOYMENT_REJECTED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  VIEW
+  PRINT
+  LOGIN
+  LOGOUT
+  EXPORT
+  IMPORT
+  APPROVE
+  REJECT
+  SEND
+  RECEIVE
+  IMPERSONATE_START
+  IMPERSONATE_STOP
+}
+
+enum Status {
+  PENDING
+  SCHEDULED
+  IN_PROGRESS
+  APPROVED
+  DENIED
+  RETURNED
+  CANCELLED
+}
+
+enum CareStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum UnitMeasure {
+  MG
+  G
+  MCG
+  KG
+  ML
+  L
+  AMP
+  COMP
+  CAPS
+  FR
+  TUB
+  DOSE
+  UI
+  CX
+  UN
+  SESSION
+  DAILY
+  MEASURE
+  OINTMENT
+  CREAM
+  GEL
+}
+
+enum Priority {
+  ELECTIVE
+  URGENCY
+  EMERGENCY
+}
+
+enum Sex {
+  MALE
+  FEMALE
+  OTHER
+  NOT_INFORMED
+}
+
+enum Relationship {
+  FRIEND
+  PARENT
+  CAREGIVER
+  BOYFRIEND_GIRLFRIEND
+  SPOUSE
+  UNCLE_AUNT
+  SIBLING
+  COUSIN
+  NEPHEW_NIECE
+}
+
+enum ResourceOrigin {
+  NOT_SPECIFIED
+  MUNICIPAL
+  STATE
+  FEDERAL
+}
+
+enum TypeDeclaration {
+  NONE
+  RESIDENCE_PEC
+  RESIDENCE_CADSUS
+  UPDATE_CADSUS
+  COST_HELP
+  HIGH_COST_EXAM
+  AUTHORIZATION
+  WITHDRAWAL
+  AIH
+  TRANSPORT
+  CER
+  CONTINUOUS_MEDICATION
+  PHARMACEUTICAL_ASSISTANCE
+}
+
+enum TemplateStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum ScheduleStatus {
+  SCHEDULED
+  CONFIRMED
+  WAITING
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+  NO_SHOW
+  RESCHEDULED
+}
+
+enum RecurrenceType {
+  NONE
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  CUSTOM
+}
+
+enum QuestionType {
+  TEXT
+  NUMBER
+  BOOLEAN
+  JUSTIFICATION
+  SELECT
+  MULTISELECT
+}
+
+enum WhatsAppTrigger {
+  STATUS_CHANGE
+  SCHEDULE_REMINDER
+  SCHEDULE_CONFIRMED
+  PICKUP_READY
+  CITIZEN_QUESTION
+  CUSTOM
+  STATUS_PENDING
+  STATUS_IN_ANALYSIS
+  STATUS_APPROVED
+  STATUS_DENIED
+  STATUS_RETURNED
+  STATUS_SCHEDULED
+  STATUS_COMPLETED
+  STATUS_CANCELLED
+  SCHEDULE_CREATED
+  SCHEDULE_REMINDER_24H
+  SCHEDULE_REMINDER_2H
+  SCHEDULE_CANCELLED
+  SCHEDULE_RESCHEDULED
+  MEDICATION_ARRIVED
+  MEDICATION_READY
+  MEDICATION_EXPIRING
+  STOCK_LOW
+  STOCK_REPLENISHED
+  CARE_PLAN_CREATED
+  CARE_PLAN_UPDATED
+  CARE_REMINDER
+  DOCUMENT_REQUIRED
+  DOCUMENT_RECEIVED
+}
+
+enum DocumentCategory {
+  PRINTED_DOCUMENT
+  DIGITAL_DOCUMENT
+}
+
+enum CitizenDocumentType {
+  BIRTH_CERTIFICATE
+  MARRIAGE_CERTIFICATE
+  RG
+  CPF
+  CNH
+  VOTER_ID
+  PROOF_OF_RESIDENCE
+  WORK_CARD
+  SUS_CARD
+  SUS_MIRROR
+  PIS_PASEP
+  RESERVIST_CERTIFICATE
+  GOV_BR
+  DIGITAL_CNH
+  DIGITAL_RG
+  OTHER
+  PROFESSIONAL_REGISTRY
+  CONTRACT
+  DIPLOMA
+  CERTIFICATION
+}
+
+enum UserRegulationAction {
+  CREATOR
+  ANALYZER
+  PRINTER
+  VIEWER
+  STATUS_CHANGE
+}
+
+enum UploadSecurityLevel {
+  PUBLIC
+  INTERNAL
+  SENSITIVE
+  CONFIDENTIAL
+}
+
+enum UploadEntityType {
+  USER_AVATAR
+  CITIZEN_AVATAR
+  LOGO_STATE
+  LOGO_MUNICIPAL
+  LOGO_ADMINISTRATION
+  PATIENT_DOCUMENT
+  REGULATION_DOCUMENT
+  TEMPLATE_THUMBNAIL
+  USER_DOCUMENT
+  OTHER
+}
+
+enum UploadAccessAction {
+  VIEW
+  DOWNLOAD
+  DELETE
+  UPDATE
+}
+
+enum BackupStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum BackupType {
+  MANUAL
+  SCHEDULED
+  FULL
+  DAILY
+}
+
+enum NotificationPreferenceState {
+  ON
+  OFF
+  ALWAYS_ASK
+}
+
+enum TicketCategory {
+  BUG
+  QUESTION
+  BILLING
+  FEATURE
+  ACCESS
+  PERFORMANCE
+  INTEGRATION
+  DATA
+  TRAINING
+  OTHER
+}
+
+enum TicketChannel {
+  APP
+  WEB
+  EMAIL
+  CHAT
+  PHONE
+  API
+  WHATSAPP
+}
+
+enum TicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+  CRITICAL
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_USER
+  WAITING_DEV
+  RESOLVED
+  CLOSED
+  CANCELED
+}
+
+// ============================================================================
+// Enums e Modelos para Sistema de Rotinas
+// ============================================================================
+
+enum RoutineStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum EmploymentStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum NotificationEventType {
+  // Regulações
+  REGULATION_CREATED
+  REGULATION_STATUS_APPROVED
+  REGULATION_STATUS_DENIED
+  REGULATION_STATUS_RETURNED
+  REGULATION_STATUS_SCHEDULED
+  REGULATION_STATUS_CANCELED
+  REGULATION_DEADLINE_WARNING
+  REGULATION_DEADLINE_EXPIRED
+  REGULATION_PRIORITY_EMERGENCY
+  REGULATION_PRIORITY_URGENCY
+  REGULATION_ASSIGNED
+  REGULATION_COMMENT_ADDED
+  // Agendamentos
+  SCHEDULE_CREATED
+  SCHEDULE_CONFIRMED
+  SCHEDULE_CANCELED
+  SCHEDULE_RESCHEDULED
+  SCHEDULE_REMINDER
+  SCHEDULE_NO_SHOW
+  SCHEDULE_COMPLETED
+  // Cidadãos
+  CITIZEN_DOCUMENT_EXPIRING
+  CITIZEN_DOCUMENT_EXPIRED
+  CITIZEN_CREATED
+  // Usuários
+  USER_CREATED
+  USER_BLOCKED
+  USER_PASSWORD_RESET
+  USER_DOCUMENT_EXPIRING
+  USER_DOCUMENT_EXPIRED
+  // Vínculos/Convites
+  EMPLOYMENT_INVITED
+  EMPLOYMENT_REQUESTED
+  EMPLOYMENT_ACCEPTED
+  EMPLOYMENT_REJECTED
+  // Sistema
+  SYSTEM_BACKUP_COMPLETED
+  SYSTEM_ERROR
+  DAILY_SUMMARY
+}
+
+enum NotificationRecipient {
+  REGULATION_OWNER
+  REGULATION_ASSIGNED
+  REGULATION_CREATOR
+  CITIZEN
+  SPECIFIC_ROLES
+  SUBSCRIBER_ADMIN
+  ALL_ADMINS
+  ALL_USERS
+  CUSTOM
+}
+
+// ============================================================================
+// Modelos de Sistema
+// ============================================================================
+
+model SystemRoutine {
+  id          Int                       @id @default(autoincrement())
+  uuid        String                    @unique @default(uuid()) @db.Uuid
+  name        String                    @unique
+  displayName String                    @map("display_name")
+  description String?
+  cronExpr    String                    @map("cron_expr")
+  isEnabled   Boolean                   @default(true) @map("is_enabled")
+  lastRunAt   DateTime?                 @map("last_run_at")
+  nextRunAt   DateTime?                 @map("next_run_at")
+  createdAt   DateTime                  @default(now()) @map("created_at")
+  updatedAt   DateTime                  @updatedAt @map("updated_at")
+  executions  SystemRoutineExecution[]
+
+  @@index([name])
+  @@index([isEnabled])
+  @@map("system_routine")
+}
+
+model SystemRoutineExecution {
+  id          Int           @id @default(autoincrement())
+  uuid        String        @unique @default(uuid()) @db.Uuid
+  routineId   Int           @map("routine_id")
+  status      RoutineStatus @default(RUNNING)
+  startedAt   DateTime      @default(now()) @map("started_at")
+  finishedAt  DateTime?     @map("finished_at")
+  duration    Int?
+  triggeredBy String?       @map("triggered_by")
+  result      String?
+  error       String?
+  routine     SystemRoutine @relation(fields: [routineId], references: [id], onDelete: Cascade)
+
+  @@index([routineId])
+  @@index([status])
+  @@index([startedAt])
+  @@map("system_routine_execution")
+}
+
+model NotificationConfig {
+  id                 Int                   @id @default(autoincrement())
+  uuid               String                @unique @default(uuid()) @db.Uuid
+  subscriberId       Int                   @map("subscriber_id")
+  eventType          NotificationEventType @map("event_type")
+  isActive           Boolean               @default(false) @map("is_active")
+  sendInApp          Boolean               @default(true) @map("send_in_app")
+  sendEmail          Boolean               @default(false) @map("send_email")
+  sendWhatsApp       Boolean               @default(false) @map("send_whatsapp")
+  sendSMS            Boolean               @default(false) @map("send_sms")
+  emailSubject       String?               @map("email_subject")
+  emailTemplate      String?               @map("email_template")
+  whatsappTemplateId Int?                  @map("whatsapp_template_id")
+  smsTemplate        String?               @map("sms_template")
+  inAppTitle         String?               @map("in_app_title")
+  inAppMessage       String?               @map("in_app_message")
+  recipientType      NotificationRecipient @default(REGULATION_OWNER) @map("recipient_type")
+  sendToRoles        String[]              @default([]) @map("send_to_roles")
+  delayMinutes       Int                   @default(0) @map("delay_minutes")
+  reminderDaysBefore Int?                  @map("reminder_days_before")
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @updatedAt @map("updated_at")
+  subscriber         Subscriber            @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  whatsappTemplate   WhatsAppProgrammed?   @relation(fields: [whatsappTemplateId], references: [id])
+
+  @@unique([subscriberId, eventType])
+  @@index([subscriberId])
+  @@index([eventType])
+  @@map("notification_config")
+}
+
+model SubGroup {
+  id             Int       @id @default(autoincrement())
+  uuid           String    @unique @default(uuid()) @db.Uuid
+  groupId        Int       @map("group_id")
+  code           String
+  name           String
+  nameNormalized String?   @map("name_normalized")
+  description    String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+  group          Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  cares          Care[]
+
+  @@unique([groupId, code])
+  @@index([groupId])
+  @@index([code])
+  @@map("sub_group")
+}
+
+model ProtocolCounter {
+  id           Int        @id @default(autoincrement())
+  uuid         String     @unique @default(uuid()) @db.Uuid
+  subscriberId Int        @unique @map("subscriber_id")
+  prefix       String     @default("PROT")
+  currentCount Int        @default(0) @map("current_count")
+  year         Int
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  subscriber   Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([subscriberId])
+  @@map("protocol_counter")
+}
+
+// ============================================================================
+// Modelo para Relatórios Gerados
+// ============================================================================
+// Armazena relatórios gerados pelo sistema (PDF) com upload para S3
+// Relatórios são automaticamente excluídos após 30 dias
+
+model GeneratedReport {
+  id              Int                @id @default(autoincrement())
+  uuid            String             @unique @default(uuid()) @db.Uuid
+  subscriberId    Int                @map("subscriber_id")
+  reportType      ReportType         @map("report_type")
+  title           String
+  description     String?
+  headerData      Json               @map("header_data")
+  filtersUsed     Json               @map("filters_used")
+  resultCount     Int                @default(0) @map("result_count")
+  status          ReportStatus       @default(PENDING)
+  fileUrl         String?            @map("file_url")
+  s3Key           String?            @map("s3_key")
+  s3Bucket        String?            @map("s3_bucket")
+  s3Region        String?            @map("s3_region")
+  fileSize        Int?               @map("file_size")
+  generatedBy     String?            @map("generated_by")
+  generationTime  Int?               @map("generation_time")
+  errorMessage    String?            @map("error_message")
+  expiresAt       DateTime           @map("expires_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  deletedAt       DateTime?          @map("deleted_at")
+  generator       User?              @relation(fields: [generatedBy], references: [id])
+  subscriber      Subscriber         @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([subscriberId])
+  @@index([generatedBy])
+  @@index([reportType])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([subscriberId, createdAt])
+  @@map("generated_report")
+}
+
+enum ReportType {
+  REGULATIONS
+  CITIZENS
+  SCHEDULES
+  CARES
+  SUPPLIERS
+  USERS
+  AUDIT_LOG
+  CUSTOM
+}
+
+enum ReportStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+// ==========================================
+// FILA DE MENSAGENS WHATSAPP
+// ==========================================
+
+model WhatsAppMessageQueue {
+  id           Int                 @id @default(autoincrement())
+  uuid         String              @unique @default(uuid()) @db.Uuid
+  subscriberId Int                 @map("subscriber_id")
+  phone        String
+  message      String              @db.Text
+  status       WhatsAppQueueStatus @default(PENDING)
+  priority     Int                 @default(0)
+  attempts     Int                 @default(0)
+  maxAttempts  Int                 @default(3) @map("max_attempts")
+  lastError    String?             @map("last_error")
+  sentAt       DateTime?           @map("sent_at")
+  nextRetryAt  DateTime?           @map("next_retry_at")
+  messageId    String?             @map("message_id")
+  trigger      String?
+  citizenId    Int?                @map("citizen_id")
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+
+  subscriber Subscriber @relation(fields: [subscriberId], references: [id])
+
+  @@index([status, priority, createdAt])
+  @@index([subscriberId, status])
+  @@index([phone, sentAt])
+  @@index([nextRetryAt])
+  @@map("whatsapp_message_queue")
+}
+
+enum WhatsAppQueueStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+  CANCELLED
+}
