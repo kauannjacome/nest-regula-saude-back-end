@@ -14,6 +14,6 @@ export class CareGroupsService extends BaseCrudService {
   }
 
   protected getModel() {
-    return this.prisma.careGroup;
+    return this.prisma.group;
   }
 }

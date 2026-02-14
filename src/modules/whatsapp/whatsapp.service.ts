@@ -34,26 +34,26 @@ export class WhatsappService {
     const skip = (page - 1) * limit;
     const where = { subscriberId };
     const [items, total] = await Promise.all([
-      this.prisma.whatsAppTemplate.findMany({ where, orderBy: { name: 'asc' }, skip, take: limit }),
-      this.prisma.whatsAppTemplate.count({ where }),
+      this.prisma.whatsAppProgrammed.findMany({ where, orderBy: { name: 'asc' }, skip, take: limit }),
+      this.prisma.whatsAppProgrammed.count({ where }),
     ]);
     return { data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
   }
 
   async createTemplate(subscriberId: number, data: any) {
-    return this.prisma.whatsAppTemplate.create({ data: { ...data, subscriberId } });
+    return this.prisma.whatsAppProgrammed.create({ data: { ...data, subscriberId } });
   }
 
   async updateTemplate(id: number, data: any) {
-    return this.prisma.whatsAppTemplate.update({ where: { id }, data });
+    return this.prisma.whatsAppProgrammed.update({ where: { id }, data });
   }
 
   async deleteTemplate(id: number) {
-    return this.prisma.whatsAppTemplate.delete({ where: { id } });
+    return this.prisma.whatsAppProgrammed.delete({ where: { id } });
   }
 
   async getRules(subscriberId: number) {
-    return this.prisma.whatsAppRule.findMany({ where: { subscriberId } });
+    return this.prisma.notificationRule.findMany({ where: { subscriberId } });
   }
 
   async getProgrammed(subscriberId: number, params: { page: number; limit: number }) {

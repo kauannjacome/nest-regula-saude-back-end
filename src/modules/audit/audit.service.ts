@@ -11,13 +11,12 @@ export class AuditService {
     const where: any = { subscriberId };
     if (search) {
       where.OR = [
-        { action: { contains: search, mode: 'insensitive' } },
-        { entityType: { contains: search, mode: 'insensitive' } },
-        { userName: { contains: search, mode: 'insensitive' } },
+        { action: { equals: search as any } },
+        { objectType: { contains: search, mode: 'insensitive' } },
       ];
     }
     const [items, total] = await Promise.all([
-      this.prisma.auditLog.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take: limit }),
+      this.prisma.auditLog.findMany({ where, orderBy: { occurredAt: 'desc' }, skip, take: limit }),
       this.prisma.auditLog.count({ where }),
     ]);
     return { data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };

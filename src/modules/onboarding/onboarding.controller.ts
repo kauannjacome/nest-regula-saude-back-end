@@ -10,17 +10,17 @@ export class OnboardingController {
   constructor(private readonly onboardingService: OnboardingService) {}
 
   @Get()
-  async getStatus(@CurrentUser('id') userId: string, @CurrentUser('subscriberId') subscriberId: number) {
-    return this.onboardingService.getStatus(userId, subscriberId);
+  async getStatus(@CurrentUser('id') userId: string) {
+    return this.onboardingService.getStatus(userId);
   }
 
   @Put()
-  async updateStep(@CurrentUser('id') userId: string, @CurrentUser('subscriberId') subscriberId: number, @Body() body: any) {
-    return this.onboardingService.updateStep(userId, subscriberId, body);
+  async updateStep(@CurrentUser('id') userId: string, @Body() body: any) {
+    return this.onboardingService.updateStep(userId, body);
   }
 
   @Post('import')
-  async importData(@CurrentUser('subscriberId') subscriberId: number, @Body() body: any) {
-    return this.onboardingService.importData(subscriberId, body);
+  async importData(@Body() body: any) {
+    return this.onboardingService.importData(body);
   }
 }

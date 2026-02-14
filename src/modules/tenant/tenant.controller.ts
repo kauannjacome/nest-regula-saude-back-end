@@ -20,12 +20,12 @@ export class TenantController {
   }
 
   @Put('roles/:id')
-  async updateRole(@Param('id', ParseIntPipe) id: number, @Body() body: any) {
+  async updateRole(@Param('id') id: string, @Body() body: any) {
     return this.tenantService.updateRole(id, body);
   }
 
   @Delete('roles/:id')
-  async deleteRole(@Param('id', ParseIntPipe) id: number) {
+  async deleteRole(@Param('id') id: string) {
     return this.tenantService.deleteRole(id);
   }
 

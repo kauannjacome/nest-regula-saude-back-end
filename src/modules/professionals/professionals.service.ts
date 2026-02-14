@@ -14,6 +14,6 @@ export class ProfessionalsService extends BaseCrudService {
   }
 
   protected getModel() {
-    return this.prisma.professional;
+    return this.prisma.userEmployment;
   }
 }

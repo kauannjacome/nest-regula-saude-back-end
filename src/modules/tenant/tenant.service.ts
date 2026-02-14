@@ -19,29 +19,29 @@ export class TenantService {
       data: { ...roleData, subscriberId },
     });
     if (permissionIds?.length) {
-      await this.prisma.rolePermission.createMany({
-        data: permissionIds.map((pid: number) => ({ tenantRoleId: role.id, permissionId: pid })),
+      await this.prisma.tenantRolePermission.createMany({
+        data: permissionIds.map((pid: string) => ({ roleId: role.id, permissionId: pid })),
       });
     }
     return role;
   }
 
-  async updateRole(id: number, data: any) {
+  async updateRole(id: string, data: any) {
     const { permissions: permissionIds, ...roleData } = data;
     const role = await this.prisma.tenantRole.update({ where: { id }, data: roleData });
     if (permissionIds !== undefined) {
-      await this.prisma.rolePermission.deleteMany({ where: { tenantRoleId: id } });
+      await this.prisma.tenantRolePermission.deleteMany({ where: { roleId: id } });
       if (permissionIds?.length) {
-        await this.prisma.rolePermission.createMany({
-          data: permissionIds.map((pid: number) => ({ tenantRoleId: id, permissionId: pid })),
+        await this.prisma.tenantRolePermission.createMany({
+          data: permissionIds.map((pid: string) => ({ roleId: id, permissionId: pid })),
         });
       }
     }
     return role;
   }
 
-  async deleteRole(id: number) {
-    await this.prisma.rolePermission.deleteMany({ where: { tenantRoleId: id } });
+  async deleteRole(id: string) {
+    await this.prisma.tenantRolePermission.deleteMany({ where: { roleId: id } });
     return this.prisma.tenantRole.delete({ where: { id } });
   }
 

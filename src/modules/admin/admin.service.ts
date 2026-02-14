@@ -63,7 +63,7 @@ export class AdminService {
     const { page = 1, limit = 50 } = params;
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
-      this.prisma.auditLog.findMany({ orderBy: { createdAt: 'desc' }, skip, take: limit }),
+      this.prisma.auditLog.findMany({ orderBy: { occurredAt: 'desc' }, skip, take: limit }),
       this.prisma.auditLog.count(),
     ]);
     return { data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
@@ -77,7 +77,7 @@ export class AdminService {
     const { page = 1, limit = 50 } = params;
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
-      this.prisma.backupHistory.findMany({ orderBy: { createdAt: 'desc' }, skip, take: limit }),
+      this.prisma.backupHistory.findMany({ orderBy: { startedAt: 'desc' }, skip, take: limit }),
       this.prisma.backupHistory.count(),
     ]);
     return { data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
