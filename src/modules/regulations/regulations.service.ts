@@ -13,10 +13,10 @@ export class RegulationsService extends BaseCrudService {
   ) {
     super({
       modelName: 'Regulacao',
-      searchFields: ['protocol', 'citizenName'],
+      searchFields: ['protocolNumber', 'idCode'],
       defaultOrderBy: { createdAt: 'asc' },
       softDelete: true,
-      include: { citizen: true, unit: true, care: true },
+      include: { citizen: true, unit: true, cares: true },
     });
   }
 

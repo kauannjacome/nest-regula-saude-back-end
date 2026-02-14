@@ -8,9 +8,11 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || process.env.AUTH_SECRET || 'dev-secret',
-      signOptions: { expiresIn: '30d' },
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        secret: process.env.JWT_SECRET || process.env.AUTH_SECRET || 'dev-secret',
+        signOptions: { expiresIn: '30d' },
+      }),
     }),
   ],
   controllers: [AuthController],

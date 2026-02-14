@@ -55,6 +55,15 @@ export abstract class BaseCrudService<T = any> {
 
   protected abstract getModel(): any;
 
+  /**
+   * Build the subscriber filter for where clause.
+   * Override in subclasses where the model doesn't have a direct subscriberId
+   * (e.g. User uses employments.subscriberId).
+   */
+  protected buildSubscriberFilter(subscriberId: number): Record<string, any> {
+    return { subscriberId };
+  }
+
   async findAll(
     subscriberId: number,
     params: PaginationParams,
@@ -70,7 +79,7 @@ export abstract class BaseCrudService<T = any> {
     }
 
     const where: any = {
-      subscriberId,
+      ...this.buildSubscriberFilter(subscriberId),
       ...(this.config.softDelete && {
         deletedAt: trash ? { not: null } : null,
       }),
@@ -123,10 +132,10 @@ export abstract class BaseCrudService<T = any> {
     };
   }
 
-  async findOne(id: number, subscriberId: number): Promise<T> {
+  async findOne(id: number | string, subscriberId: number): Promise<T> {
     const where: any = {
       id,
-      subscriberId,
+      ...this.buildSubscriberFilter(subscriberId),
       ...(this.config.softDelete && { deletedAt: null }),
     };
 

@@ -23,6 +23,14 @@ export class UsersService extends BaseCrudService {
     return this.prisma.user;
   }
 
+  protected buildSubscriberFilter(subscriberId: number) {
+    return {
+      employments: {
+        some: { subscriberId, isActive: true, status: 'ACCEPTED' },
+      },
+    };
+  }
+
   // ── Reset Password ────────────────────────────────────────────────────
 
   async resetPassword(targetUserId: string, requesterId: string, subscriberId: number, isSystemManager: boolean, reset2FA?: boolean) {
