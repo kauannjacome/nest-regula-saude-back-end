@@ -22,6 +22,8 @@ import { DocumentsModule } from './modules/documents/documents.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ProfessionalsModule } from './modules/professionals/professionals.module';
 import { EmploymentsModule } from './modules/employments/employments.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { ImagesModule } from './modules/images/images.module';
 
 // Specialized Modules
 import { AdminModule } from './modules/admin/admin.module';
@@ -33,6 +35,10 @@ import { SupportModule } from './modules/support/support.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { HealthModule } from './modules/health/health.module';
+import { TemplatesModule } from './modules/templates/templates.module';
+import { ListsModule } from './modules/lists/lists.module';
+import { StatsModule } from './modules/stats/stats.module';
+import { MiscModule } from './modules/misc/misc.module';
 
 @Module({
   imports: [
@@ -60,6 +66,8 @@ import { HealthModule } from './modules/health/health.module';
     ReportsModule,
     ProfessionalsModule,
     EmploymentsModule,
+    RolesModule,
+    ImagesModule,
 
     // Specialized Modules
     AdminModule,
@@ -71,6 +79,10 @@ import { HealthModule } from './modules/health/health.module';
     OnboardingModule,
     AuditModule,
     HealthModule,
+    TemplatesModule,
+    ListsModule,
+    StatsModule,
+    MiscModule,
   ],
 })
 export class AppModule {}
